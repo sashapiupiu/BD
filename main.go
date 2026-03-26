@@ -62,8 +62,8 @@ func (s ParcelService) PrintClientParcels(client int) error {
 		fmt.Printf("Посылка № %d на адрес %s от клиента с идентификатором %d зарегистрирована %s, статус %s\n",
 			parcel.Number, parcel.Address, parcel.Client, parcel.CreatedAt, parcel.Status)
 	}
-	fmt.Println()
 
+	fmt.Println()
 	return nil
 }
 
@@ -74,6 +74,7 @@ func (s ParcelService) NextStatus(number int) error {
 	}
 
 	var nextStatus string
+
 	switch parcel.Status {
 	case ParcelStatusRegistered:
 		nextStatus = ParcelStatusSent
@@ -84,7 +85,6 @@ func (s ParcelService) NextStatus(number int) error {
 	}
 
 	fmt.Printf("У посылки № %d новый статус: %s\n", number, nextStatus)
-
 	return s.store.SetStatus(number, nextStatus)
 }
 
@@ -97,9 +97,14 @@ func (s ParcelService) Delete(number int) error {
 }
 
 func main() {
-	// настройте подключение к БД
+	db, err := sql.Open("sqlite", "tracker.db")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer db.Close()
 
-	store := // создайте объект ParcelStore функцией NewParcelStore
+	store := NewParcelStore(db)
 	service := NewParcelService(store)
 
 	// регистрация посылки
